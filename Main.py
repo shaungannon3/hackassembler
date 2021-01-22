@@ -12,29 +12,32 @@ def main(*args):
     inputFile = str(sys.argv[1])
     outputFile = inputFile[:(len(inputFile) - 4)] + ".hack"
 
-    # first pass to add labels to symbol table
+    # first pass through file to add labels to symbol table
     lineNumber = -1
     with open(inputFile, "r") as r:
         for line in r:
             if is_code(line):
-                try:
-                    label = re.findall("(?<=^\()\S*(?=\))", line)[0]
-                    Globals.symbolTable.add_label(label, lineNumber + 1)
+                try: 
+                    # if line contains label, add label to symbol table
+                    label = re.findall("(?<=^\()\S*(?=\))", line)[0] 
+                    Globals.symbolTable.add_label(label, lineNumber + 1) 
                 except:
                     lineNumber += 1
 
-    # second pass to process instructions
+    # second pass through file to parse lines with instructions
     lineNumber = -1
     with open(inputFile, "r") as r, open(outputFile, "w") as w:
         for line in r:
             if is_code(line):
                 try: 
-                    re.findall("(?<=^\()\S*(?=\))", line)[0] # line is code and not label
+                    # pass if line contains label
+                    re.findall("(?<=^\()\S*(?=\))", line)[0] 
                     pass
-                except:
+                except: 
+                    # parse line into binary
                     lineNumber += 1
                     line = line.replace('\n','')
-                    line = "".join(line.split(" ")) # remove whitespace
+                    line = "".join(line.split(" "))
                     instruction = Parser(line)
                     instruction.parse()
                     code = Code(instruction)
